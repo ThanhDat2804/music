@@ -1,0 +1,25 @@
+spring:
+  profile:
+    active: dev
+  application:
+    name: music-service
+  cloud:
+    config:
+      name: music-service
+  config:
+    import: "optional:configserver:"
+logging:
+  level:
+    org:
+      springframework: INFO
+      data:
+        neo4j:
+          core: DEBUG
+    root: DEBUG
+langchain4j:
+  chat-model:
+    provider: openai
+    openai:
+      api-key: sk-1234567890
+      model: gpt-3.5-turbo
+      temperature: 0.0

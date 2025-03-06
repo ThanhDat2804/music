@@ -1,0 +1,10 @@
+spring:
+  profile:
+    active: dev
+  application:
+    name: gateway-server
+  cloud:
+    config:
+      name: gateway-server
+  config:
+    import: "optional:configserver:"
