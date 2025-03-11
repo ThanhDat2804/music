@@ -89,4 +89,18 @@ public interface SongRepository extends Neo4jRepository<Song, String> {
             "SET song.status = $status " +
             "RETURN song")
     Song updateSongStatus(@Param("songId") String songId, @Param("status") Status status);
+
+    @Query("""
+    MATCH(song: Song {id: $songId})
+    SET song.status = $status
+    SET song.taskSchedulerId = $taskSchedulerId
+    RETURN song
+""")
+    Song updateScheduledSongStatus(
+            @Param("songId") String songId,
+            @Param("status") Status status,
+            @Param("taskSchedulerId") String taskSchedulerId
+    );
+
+    Status status(Status status);
 }

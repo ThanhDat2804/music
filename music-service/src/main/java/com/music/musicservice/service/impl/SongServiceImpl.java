@@ -3,6 +3,7 @@ package com.music.musicservice.service.impl;
 import com.music.musicservice.dto.*;
 import com.music.musicservice.model.Song;
 import com.music.musicservice.model.Status;
+import com.music.musicservice.proxy.TaskProxy;
 import com.music.musicservice.repository.SongRepository;
 import com.music.musicservice.service.ArtistService;
 import com.music.musicservice.service.SongService;
@@ -14,7 +15,9 @@ import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -30,6 +33,12 @@ public class SongServiceImpl implements SongService {
     private final YearService yearService;
     private final ArtistService artistService;
     private final Neo4jClient neo4jClient;
+    private final TaskProxy taskProxy;
+
+    public static final String RELEASE_SONG = "RELEASE_SONG";
+    public static final String RELEASE_ALBUM = "RELEASE_ALBUM";
+    public static final String ARTIST_ID = "ARTIST_ID";
+
     @Override
     public Song create(SongRecord songRecord, String artistId) {
 
@@ -46,8 +55,8 @@ public class SongServiceImpl implements SongService {
 
         Song saved = repository.save(song);
         yearService.create(songRecord.releaseYear());
-        artistService.addArtistAndYearRelationship(artistId,songRecord.releaseYear(),
-                saved.getId(),songRecord.genreId());
+        artistService.addArtistAndYearRelationship(artistId, songRecord.releaseYear(),
+                saved.getId(), songRecord.genreId());
 
         return saved;
     }
@@ -77,19 +86,19 @@ public class SongServiceImpl implements SongService {
     @Override
     public void userLikeASong(String songId, String userId) {
 
-        repository.userLikeASong(songId,userId, LocalDateTime.now());
+        repository.userLikeASong(songId, userId, LocalDateTime.now());
 
     }
 
     @Override
     public void userDisLikeASong(String songId, String userId) {
-        repository.userDisLikeASong(songId,userId);
+        repository.userDisLikeASong(songId, userId);
 
     }
 
     @Override
     public void userPlaysASong(String songId, String userId) {
-        repository.userPlaysASong(songId,userId,LocalDateTime.now(),1);
+        repository.userPlaysASong(songId, userId, LocalDateTime.now(), 1);
     }
 
     @Override
@@ -117,12 +126,25 @@ public class SongServiceImpl implements SongService {
 
     @Override
     public PublishResponseDto releaseSong(String id, ReleaseDto releaseDto) {
-
-        if(!Objects.equals(Status.SCHEDULED, releaseDto.getStatus())){
-            //TODO: call task scheduler to create a task
+        if (Objects.equals(Status.SCHEDULED, releaseDto.getStatus())) {
+            // todo call task scheduler to create a task
             LocalDateTime releaseDate = releaseDto.getReleaseDate();
 
+            Map<String, Object> data = new HashMap<>();
+            data.put("RELEASE_SONG", id);
+            data.put("ARTIST_ID", releaseDto.getArtistId());
+
+            TaskDto build = TaskDto.builder()
+                    .data(null)
+                    .processDate(releaseDate)
+                    .build();
+
+            TaskDto task = taskProxy.createTask(build);
+            repository.updateScheduledSongStatus(id, Status.SCHEDULED, task.getId());
+
+            return PublishResponseDto.builder().isSuccess(true).id(id).build();
         }
+
         return updateStatus(id, Status.PUBLISHED);
     }
 }

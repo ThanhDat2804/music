@@ -1,4 +1,4 @@
-package com.music.task_scheduler.service;
+package com.music.taskscheduler;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

@@ -1,0 +1,10 @@
+spring:
+  profile:
+    active: dev
+  application:
+    name: messaging-service
+  cloud:
+    config:
+      name: messaging-service
+  config:
+    import: "optional:configserver:"

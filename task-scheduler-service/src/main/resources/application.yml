@@ -1,0 +1,11 @@
+spring:
+  profiles:
+    active:
+      - nflow.db.mysql
+  application:
+    name: task-scheduler-service
+  cloud:
+    config:
+      name: task-scheduler-service
+  config:
+    import: "optional:configserver:"
