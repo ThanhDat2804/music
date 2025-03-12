@@ -23,3 +23,10 @@ langchain4j:
       api-key: sk-1234567890
       model: gpt-3.5-turbo
       temperature: 0.0
+
+      server:
+        port: 8080
+
+      openai:
+        api-key: "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"
+        url: "https://api.openai.com/v1/audio/transcriptions"
