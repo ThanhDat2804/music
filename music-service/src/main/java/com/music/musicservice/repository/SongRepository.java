@@ -9,6 +9,7 @@ import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 public interface SongRepository extends Neo4jRepository<Song, String> {
@@ -89,4 +90,20 @@ public interface SongRepository extends Neo4jRepository<Song, String> {
             "SET song.status = $status " +
             "RETURN song")
     Song updateSongStatus(@Param("songId") String songId, @Param("status") Status status);
+
+    // 🔍 Tìm bài hát theo tên (hỗ trợ tìm kiếm gần đúng)
+    @Query("MATCH (song:Song) WHERE toLower(song.name) CONTAINS toLower($query) " +
+            "OR toLower(song.description) CONTAINS toLower($query) " +
+            "RETURN song.id AS id, " +
+            "song.name AS name, " +
+            "song.description AS description, " +
+            "song.status AS status, " +
+            "song.duration AS duration, " +
+            "song.storageId AS storageId, " +
+            "song.storageType AS storageType, " +
+            "song.type AS type, " +
+            "song.year AS year")
+    List<SongProjection> searchSongsByQuery(@Param("query") String query);
+
+
 }
