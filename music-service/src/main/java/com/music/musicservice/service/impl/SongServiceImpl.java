@@ -12,8 +12,8 @@ import com.music.musicservice.service.SongService;
 import com.music.musicservice.service.YearService;
 import com.music.musicservice.utils.JsonUtility;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +32,8 @@ import static java.util.Objects.nonNull;
 @Slf4j
 @RequiredArgsConstructor
 public class SongServiceImpl implements SongService {
+    @Value("${bunnynet.video.stream.access.key}")
+    private String videoStreamAccessKey;
 
     private final SongRepository repository;
     private final YearService yearService;
@@ -40,8 +42,6 @@ public class SongServiceImpl implements SongService {
     private final TaskProxy taskProxy;
     private final BunnynetProxy bunnynetProxy;
 
-    @Value("${bunnynet.video.stream.access.key:n}")
-    private String videoStreamAccessKey;
 
     public static final String RELEASE_SONG = "RELEASE_SONG";
     public static final String RELEASE_ALBUM = "RELEASE_ALBUM";
