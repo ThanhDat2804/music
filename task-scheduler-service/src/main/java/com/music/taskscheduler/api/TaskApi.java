@@ -25,8 +25,8 @@ public class TaskApi {
     }
 
     @DeleteMapping("/{id}")
-    public Task deleteById(@PathVariable String id) {
-        return taskService.deleteById(id);
+    void deleteById(@PathVariable String id) {
+         taskService.deleteById(id);
     }
 
     @GetMapping("/{id}")

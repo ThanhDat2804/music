@@ -41,7 +41,14 @@ public class JsonUtility {
         return getJackSonObjectMapper().convertValue(linkedHashMap, type);
     }
 
-    public static Map<String, Object> toMap(String s) {
-        return null;
+    public static Map<String, Object> toMap(String data) {
+
+        try {
+            return getJackSonObjectMapper().readValue(data, Map.class);
+        } catch (JsonProcessingException e) {
+            log.warn("JsonProcessingException - toMap", e);
+            return null;
+        }
     }
+
 }

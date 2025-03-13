@@ -9,3 +9,10 @@ spring:
       name: task-scheduler-service
   config:
     import: "optional:configserver:"
+nflow:
+  db:
+    mysql:
+      driver: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://localhost:3306/task_scheduler_nflow?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=Europe/Rome&autoReconnect=true
+      user: root
+      password: root
