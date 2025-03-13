@@ -5,6 +5,9 @@ spring:
     config:
       server:
         git:
+          #          uri: file:///${user.home}/configuration-repo // for windows users
+          uri: file:///C:/Users/Admin/Desktop/configuration-repo
+#          uri: file:///${user.home}/configuration-repo
           #  uri: file:///${user.home}/configuration-repo // for windows users
           uri: file://${user.home}/configuration-repo
           clone-on-start: true

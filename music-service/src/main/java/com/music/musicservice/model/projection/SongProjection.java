@@ -12,6 +12,8 @@ public interface SongProjection {
     String getStorageId();
     String getStorageType();
     String getType();
-    Year getYear();
+   // Year getYear();
+    Integer getYear();
+    String getArtistId();
 
 }
