@@ -25,4 +25,10 @@ public interface SongService {
     PublishResponseDto updateStatus(String id, Status status);
 
     PublishResponseDto releaseSong(String id, ReleaseDto releaseDto);
+
+    SongDto getSong(String id);
+
+    SongDto getSongByStorageId(String storageId);
+
+    BunnyVideoCallbackReq updateSongStatus(BunnyVideoCallbackReq req);
 }

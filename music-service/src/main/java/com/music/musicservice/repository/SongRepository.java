@@ -3,6 +3,7 @@ package com.music.musicservice.repository;
 import com.music.musicservice.model.Song;
 import com.music.musicservice.model.SongType;
 import com.music.musicservice.model.Status;
+import com.music.musicservice.model.StorageProviderStatus;
 import com.music.musicservice.model.projection.SongProjection;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
@@ -28,6 +29,28 @@ public interface SongRepository extends Neo4jRepository<Song, String> {
             "    year.year as year\n" +
             "SKIP $page\n" +
             "LIMIT $pageSize;";
+
+    String GET_SONG_BY_VIDEO_ID ="""
+    MATCH (n:Song {id: $videoId})\s
+    MATCH(artist:Artist)-[:CREATED]->(n)
+    OPTIONAL MATCH(album:ALBUM)<-[:IS_IN]-(n)
+    RETURN n.name as name, n.id as id, n.description as description, n.releasedDate as releasedDate, n.type as type, artist.id as artistId, album.id as albumId""";
+
+    String GET_SONG_BY_STORAGE_ID ="""
+    MATCH (n:Song {storageId: $storageId})\s
+    MATCH(artist:Artist)-[:CREATED]->(n)
+    OPTIONAL MATCH(album:ALBUM)<-[:IS_IN]-(n)
+    RETURN n.name as name, n.id as id, n.description as description, n.releasedDate as releasedDate, n.type as type, artist.id as artistId, album.id as albumId
+    """;
+
+    String GET_SONG ="""
+    MATCH (n:Song {id: $songId})\s
+    MATCH(artist:Artist)-[:CREATED]->(n)
+    OPTIONAL MATCH(album:Album)<-[:IS_IN]-(n)
+    RETURN n.name as name, n.id as id, n.description as description, n.releasedDate as releasedDate, n.type as type, artist.id as artistId, album.id as albumId
+    """;
+
+
 
     @Query("MATCH (song:Song {id: $songId}) " +
             "RETURN song.id AS id, " +
@@ -102,5 +125,19 @@ public interface SongRepository extends Neo4jRepository<Song, String> {
             @Param("taskSchedulerId") String taskSchedulerId
     );
 
-    Status status(Status status);
+    @Query("""
+    MATCH(song: Song {id: $songId})\s
+    SET song.storageProviderStatus = $storageProviderStatus
+    RETURN song""")
+    Song updateSongProviderStatus(@Param("songId") String songId,
+                                  @Param("storageProviderStatus") StorageProviderStatus storageProviderStatus);
+
+    @Query("""
+    MATCH (song: Song {id: $songId})
+    SET song.duration = $duration
+    RETURN song""")
+    Song updateSongDetailsFromProvider(@Param("songId") String songId,
+                                       @Param("duration") Long duration);
+
+
 }

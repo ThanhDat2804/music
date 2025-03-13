@@ -37,4 +37,5 @@ public class Song {
     private Year year;
     @Relationship(value = "BELONGS",direction = Relationship.Direction.INCOMING)
     private Album album;
+    private StorageProviderStatus storageProviderStatus;
 }

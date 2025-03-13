@@ -23,3 +23,8 @@ langchain4j:
       api-key: sk-1234567890
       model: gpt-3.5-turbo
       temperature: 0.0
+bunnynet:
+  video:
+    stream:
+      access:
+        key: 0aa580f3-76db-419f-a63349962ef8-7af2-4e60

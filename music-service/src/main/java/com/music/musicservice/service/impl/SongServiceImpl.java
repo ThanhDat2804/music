@@ -3,6 +3,8 @@ package com.music.musicservice.service.impl;
 import com.music.musicservice.dto.*;
 import com.music.musicservice.model.Song;
 import com.music.musicservice.model.Status;
+import com.music.musicservice.model.StorageProviderStatus;
+import com.music.musicservice.proxy.BunnynetProxy;
 import com.music.musicservice.proxy.TaskProxy;
 import com.music.musicservice.repository.SongRepository;
 import com.music.musicservice.service.ArtistService;
@@ -10,6 +12,7 @@ import com.music.musicservice.service.SongService;
 import com.music.musicservice.service.YearService;
 import com.music.musicservice.utils.JsonUtility;
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.stereotype.Service;
@@ -21,7 +24,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static com.music.musicservice.repository.SongRepository.GET_ARTIST_SONGS;
+import static com.music.musicservice.repository.SongRepository.*;
+import static java.util.Objects.nonNull;
 
 
 @Service
@@ -34,6 +38,10 @@ public class SongServiceImpl implements SongService {
     private final ArtistService artistService;
     private final Neo4jClient neo4jClient;
     private final TaskProxy taskProxy;
+    private final BunnynetProxy bunnynetProxy;
+
+    @Value("${bunnynet.video.stream.access.key:n}")
+    private String videoStreamAccessKey;
 
     public static final String RELEASE_SONG = "RELEASE_SONG";
     public static final String RELEASE_ALBUM = "RELEASE_ALBUM";
@@ -146,5 +154,46 @@ public class SongServiceImpl implements SongService {
         }
 
         return updateStatus(id, Status.PUBLISHED);
+    }
+
+    @Override
+    public SongDto getSong(String songId) {
+        return neo4jClient.query(GET_SONG)
+                .bind(songId).to("songId")
+                .fetch()
+                .one()
+                .map(map -> JsonUtility.fromMap(map, SongDto.class))
+                .orElse(null);
+    }
+
+    @Override
+    public SongDto getSongByStorageId(String storageId) {
+        return neo4jClient.query(GET_SONG_BY_STORAGE_ID)
+                .bind(storageId).to("storageId")
+                .fetch()
+                .one()
+                .map(map -> JsonUtility.fromMap(map, SongDto.class))
+                .orElse(null);
+    }
+
+    @Override
+    public BunnyVideoCallbackReq updateSongStatus(BunnyVideoCallbackReq request) {
+
+        if (request.getStatus() == 3) {
+            String storageId = request.getVideoGuid();
+            SongDto songDto = getSongByStorageId(storageId);
+
+            if (nonNull(songDto)) {
+
+                BunnyNetVideoDTO video = bunnynetProxy.getVideo(request.getVideoLibraryId(), storageId, videoStreamAccessKey);
+                Song song = repository.updateSongProviderStatus(songDto.getId(), StorageProviderStatus.FINISHED);
+                Song song1 = repository.updateSongDetailsFromProvider(songDto.getId(), video.length);
+                // send email to the artist about the song finished status
+
+
+            }
+        }
+
+        return request;
     }
 }

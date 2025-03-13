@@ -12,6 +12,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class SongDto {
 
+    private String id;
+
     private String description;
 
     private String name;
@@ -21,5 +23,6 @@ public class SongDto {
     private SongType type;
 
     private String albumId;
+
 
 }
